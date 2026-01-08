@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAMATHA YOUTH PEDDEVAM – Admin Panel</title>
+
+<style>
+:root{
+  --blue-bg:#0b1120;
+  --blue-gradient:#2563eb;
+  --cyan:#00e5ff;
+}
+
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  font-family:"Segoe UI",system-ui,sans-serif;
+  background:#ffffff;
+  overflow-x:hidden;
+}
+
+/* ================= HEADER ================= */
+header{
+  width:100%;
+  background:#ffffff;
+  padding:12px 30px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 10px rgba(0,0,0,.1);
+  position:fixed;
+  top:0;
+  z-index:999;
+}
+header h1{
+  font-size:clamp(14px, 4vw, 18px);
+  color:#2563eb;
+  font-weight:800;
+  text-transform: uppercase;
+}
+.nav-buttons{
+  display:flex;
+  gap:10px;
+}
+.nav-buttons a{
+  padding:8px 18px;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(135deg,#00e5ff,#2563eb);
+  border-radius:25px;
+  text-decoration:none;
+  transition:.3s;
+}
+.nav-buttons a:hover{
+  opacity:.85;
+  transform:translateY(-1px);
+}
+
+/* ================= HERO ================= */
+.hero{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+  background:radial-gradient(circle at top left, var(--blue-gradient), var(--blue-bg) 85%);
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* VIDEO WITH INVISIBLE EDGES */
+.hero-video-side {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%; 
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-video-side video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+
+  /* Invisible edges fade */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 35%), 
+                      linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 35%), 
+              linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  
+  filter: brightness(1.1) saturate(1.2);
+}
+
+/* CONTENT */
+.hero-inner{
+  position:relative;
+  z-index:10;
+  max-width:1300px;
+  margin:0 auto;
+  padding:0 40px;
+  width: 100%;
+}
+.hero-text{
+  max-width:600px;
+  color:#fff;
+}
+.hero-text h3{
+  font-size:15px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--cyan);
+  margin-bottom:15px;
+  font-weight: 600;
+}
+.hero-text h1{
+  font-size:clamp(32px, 6vw, 62px);
+  line-height:1.1;
+  margin-bottom:20px;
+  font-weight: 900;
+  background: linear-gradient(to right, #ffffff, #cbe4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+.hero-text p{
+  font-size: clamp(16px, 2vw, 19px);
+  line-height:1.6;
+  opacity:.9;
+  margin-bottom:30px;
+}
+.btn{
+  display: inline-block;
+  padding:16px 36px;
+  font-size:16px;
+  font-weight:700;
+  border-radius:50px;
+  background:linear-gradient(135deg,var(--cyan),#2563eb);
+  color:#fff;
+  text-decoration:none;
+  box-shadow: 0 10px 30px rgba(0, 229, 255, 0.4);
+  transition:.3s;
+}
+.btn:hover{
+  transform:translateY(-4px);
+  box-shadow:0 15px 40px rgba(0, 229, 255, 0.6);
+}
+
+/* ================= WAVE ================= */
+.wave{
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:100%;
+  z-index:20;
+}
+.wave svg{
+  display: block;
+  width:100%;
+  height:80px;
+}
+
+/* ================= WHITE MARQUEE ================= */
+.white{
+  padding:80px 0;
+  background:#ffffff;
+}
+.marquee{
+  width:100%;
+  overflow:hidden;
+}
+.track{
+  display:flex;
+  width:max-content;
+  animation:scroll 40s linear infinite;
+}
+.student{
+  margin:0 20px;
+}
+.student img{
+  width:220px;
+  height:140px;
+  border-radius:20px;
+  object-fit:cover;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+@keyframes scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+/* ================= FOOTER ================= */
+footer{
+  text-align:center;
+  padding:30px;
+  color:#2563eb;
+  font-weight:700;
+  border-top:1px solid #eee;
+  background: #fff;
+  letter-spacing: 1px;
+}
+
+/* RESPONSIVE */
+@media(max-width:968px){
+  .hero-video-side{
+      width:100%; 
+      opacity: 0.55;
+  }
+  .hero-video-side video {
+      -webkit-mask-image: radial-gradient(circle, black 30%, transparent 90%);
+      mask-image: radial-gradient(circle, black 30%, transparent 90%);
+  }
+  .hero-inner{text-align:center}
+  .hero-text{max-width:100%}
+  .hero-text p { margin-left: auto; margin-right: auto; }
+}
+
+@media(max-width:480px){
+    header { padding: 10px 15px; }
+    header h1 { font-size: 13px; }
+    .nav-buttons a { padding: 6px 12px; font-size: 11px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 id="headerTitle"></h1>
+  <div class="nav-buttons">
+    <a id="navHome" href="index.html"></a>
+    <a id="navDashboard" href="dashboard.html"></a>
+    <a id="navLogin" href="admin.html"></a>
+  </div>
+</header>
+
+<section class="hero">
+
+  <div class="hero-video-side">
+    <video autoplay muted loop playsinline>
+      <source src="./projectvideo.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h3 id="subtitle"></h3>
+      <h1 id="mainTitle"></h1>
+      <p id="description"></p>
+      <a class="btn" id="actionBtn" href="dashboard.html"></a>
+    </div>
+  </div>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+      <path fill="#ffffff"
+        d="M0,60 C240,30 480,30 720,60 C960,90 1200,90 1440,60 L1440,120 L0,120 Z"/>
+    </svg>
+  </div>
+
+</section>
+
+<section class="white">
+  <div class="marquee">
+    <div class="track">
+      <div class="student"><img src="https://static.toiimg.com/thumb/msid-99459073,imgsize-875570,width-400,resizemode-4/99459073.jpg"></div>
+      <div class="student"><img src="https://qsvibes.com/wp-content/uploads/2023/10/Babasaheb-Ambedkar-quotes-2.webp"></div>
+      <div class="student"><img src="https://mir-s3-cdn-cf.behance.net/projects/404/823a8c239921551.Y3JvcCwxOTI0LDE1MDUsMjU3LDQxOQ.jpg"></div>
+      <div class="student"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK4Yd8HEmAiDAKYPtR7J8wiLtK1gYHy8TSPA&s"></div>
+      <div class="student"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSScH-kiDNJsaxSyMmXNJKrMSStRvJxBREprw&s"></div>
+      <div class="student"><img src="https://www.w3mirchi.com/images/picture/NDAyNzQ-ambedkar-jayanti-quotes.jpg"></div>
+      <div class="student"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQibnddGgllw5oIG45o8KCuN7JNMv2QmGayqw&s"></div>
+    </div>"
+  </div>
+</section>
+
+<footer id="footerText"></footer>
+
+<script>
+const text={
+  en:{
+    header:"SAMATHA YOUTH PEDDEVAM",
+    home:"Home",
+    dash:"Dashboard",
+    login:"Admin Login",
+    sub:"Community Fund Management",
+    title:"Educate, Agitate, Organize.",
+    desc:"Inspired by the vision of Dr. B. R. Ambedkar, SAMATHA YOUTH PEDDEVAM is dedicated to social justice, community service, and youth empowerment.",
+    btn:"Go to Dashboard",
+    foot:"© ALL RIGHTS RESERVED TO SAMATHA YOUTH PEDDEVAM"
+  },
+  te:{
+    header:"సమత యూత్ పెద్దేవం",
+    home:"హోమ్",
+    dash:"డాష్‌బోర్డ్",
+    login:"అడ్మిన్ లాగిన్",
+    sub:"సమాజ నిధుల నిర్వహణ",
+    title:"చదువుకో, పోరాడు, సంఘటితమవ్వు.",
+    desc:"డా. బి.ఆర్. అంబేద్కర్ ఆలోచనలతో ప్రేరణ పొంది, సమత యూత్ పెద్దేవం సామాజిక న్యాయం మరియు సేవా కార్యక్రమాల కోసం పనిచేస్తోంది.",
+    btn:" డాష్‌బోర్డ్ కి వెళ్ళండి",
+    foot:"© సర్వ హక్కులు సమతా యూత్‌  పెద్దేవం కు పరిరక్షించబడ్డాయి  "
+  }
+};
+
+let lang="en";
+const headerTitle = document.getElementById('headerTitle');
+const navHome = document.getElementById('navHome');
+const navDashboard = document.getElementById('navDashboard');
+const navLogin = document.getElementById('navLogin');
+const subtitle = document.getElementById('subtitle');
+const mainTitle = document.getElementById('mainTitle');
+const description = document.getElementById('description');
+const actionBtn = document.getElementById('actionBtn');
+const footerText = document.getElementById('footerText');
+
+function render(){
+  const d=text[lang];
+  headerTitle.innerText=d.header;
+  navHome.innerText=d.home;
+  navDashboard.innerText=d.dash;
+  navLogin.innerText=d.login; // Correctly maps to "Admin Login"
+  subtitle.innerText=d.sub;
+  mainTitle.innerText=d.title;
+  description.innerText=d.desc;
+  actionBtn.innerText=d.btn;
+  footerText.innerText=d.foot;
+}
+
+render();
+
+// Automatically switch language every 10 seconds
+setInterval(()=>{
+  lang=lang==="en"?"te":"en";
+  render();
+},10000);
+</script>
+
+</body>
+
+</html>
+
+
+
+

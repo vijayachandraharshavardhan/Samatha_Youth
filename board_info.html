@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Information - Samatha Youth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --accent-color: #4cc9f0;
+            --brand-blue: #0084ff;
+            --header-bg: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                        url('https://res.cloudinary.com/teepublic/image/private/s--qU-WVBG2--/t_Resized%20Artwork/c_fit,g_north_west,h_954,w_954/co_000000,e_outline:48/co_000000,e_outline:inner_fill:48/co_ffffff,e_outline:48/co_ffffff,e_outline:inner_fill:48/co_bbbbbb,e_outline:3:1000/c_mpad,g_center,h_1260,w_1260/b_rgb:eeeeee/t_watermark_lock/c_limit,f_auto,h_630,q_auto:good:420,w_630/v1653116155/production/designs/30589163_0.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Navigation Bar --- */
+        nav {
+            width: 100%;
+            min-height: 70px;
+            background: var(--header-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5%;
+            box-sizing: border-box;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--brand-blue);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-links a, .lang-btn {
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* --- Content Area --- */
+        .content-wrapper {
+            max-width: 900px; 
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* --- Board Grid Updated to 2 Columns --- */
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .member-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .member-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color);
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+
+        .member-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+        }
+
+        .member-role {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .phone-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .phone-link:hover {
+            background: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        /* --- Structure Table --- */
+        .structure-section {
+            margin-top: 60px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--glass-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        footer {
+            width: 100%;
+            padding: 25px 0;
+            background: transparent;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+            margin-top: auto;
+        }
+
+        /* --- Mobile Responsiveness (1 Member per row) --- */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            nav { flex-direction: column; padding: 15px; }
+            .nav-links { margin-top: 10px; }
+            .board-grid {
+                grid-template-columns: 1fr; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" id="siteLogo">Samatha Youth Peddevam</div>
+        <div class="nav-links">
+            <a href="dashboard.html" id="navDash">Dashboard</a>
+            <a href="admin.html" id="navAdmin">Admin Login</a>
+            <button class="lang-btn" onclick="toggleLanguage()">తెలుగు / EN</button>
+        </div>
+    </nav>
+
+    <div class="content-wrapper">
+        <h1 id="mainTitle">Board Information</h1>
+        <p class="subtitle" id="mainSubtitle">The dedicated team leading Samatha Youth towards a better future.</p>
+
+        <div class="board-grid" id="memberGrid">
+            <p id="loadingText">Loading board members...</p>
+        </div>
+
+        <div class="structure-section">
+            <h3 id="roleTitle">Organizational Roles</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th id="thRole">Role</th>
+                    </tr>
+                </thead>
+                <tbody id="rolesTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer id="footerText">
+        © 2026 Samatha Youth Peddevam. Developed by Battu Harsha Vardhan
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBc7aHZ99qXVanY_qWsskkGl6UwrGRs-sM",
+            authDomain: "samatha-youth.firebaseapp.com",
+            projectId: "samatha-youth",
+            storageBucket: "samatha-youth.firebasestorage.app",
+            messagingSenderId: "543294038206",
+            appId: "1:543294038206:web:baaab16553c53d2dadbeef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- HANDLE BOARD MEMBERS AND DYNAMIC ROLES ---
+        const boardRef = collection(db, "boardMembers");
+        onSnapshot(boardRef, (snapshot) => {
+            const memberGrid = document.getElementById('memberGrid');
+            const rolesTable = document.getElementById('rolesTableBody');
+            
+            memberGrid.innerHTML = ''; 
+            rolesTable.innerHTML = '';
+
+            const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Set to keep track of unique roles
+            const uniqueRoles = new Set();
+
+            if (members.length === 0) {
+                memberGrid.innerHTML = '<p>No board members found.</p>';
+                rolesTable.innerHTML = '<tr><td>No roles available.</td></tr>';
+            } else {
+                members.forEach(m => {
+                    // Populate Grid - note we use m.photoUrl to match Admin Page field
+                    memberGrid.innerHTML += `
+                        <div class="member-card">
+                            <img src="${m.photoUrl || 'https://via.placeholder.com/140'}" alt="${m.name}" class="member-img">
+                            <div class="member-name">${m.name}</div>
+                            <span class="member-role">${m.role}</span>
+                            <a href="tel:+91${m.phone}" class="phone-link">
+                                <i class="fas fa-phone"></i> +91 ${m.phone}
+                            </a>
+                        </div>
+                    `;
+                    // Track Roles
+                    if(m.role) uniqueRoles.add(m.role);
+                });
+
+                // Populate Roles Table based on added members
+                uniqueRoles.forEach(role => {
+                    rolesTable.innerHTML += `<tr><td>${role}</td></tr>`;
+                });
+            }
+        });
+    </script>
+
+    <script>
+        let currentLang = 'en';
+        const translations = {
+            en: {
+                logo: "Samatha Youth Peddevam",
+                navDash: "Dashboard",
+                navAdmin: "Admin Login",
+                title: "Board Information",
+                subtitle: "The dedicated team leading Samatha Youth towards a better future.",
+                loading: "Loading board members...",
+                roleTitle: "Organizational Roles",
+                thRole: "Role",
+                footer: "© 2026 Samatha Youth Peddevam. Developed by Battu Harsha Vardhan"
+            },
+            te: {
+                logo: "సమత యూత్ పెద్దేవం",
+                navDash: "డాష్‌బోర్డ్",
+                navAdmin: "అడ్మిన్ లాగిన్",
+                title: "బోర్డు సమాచారం",
+                subtitle: "సమత యూత్ ను మెరుగైన భవిష్యత్తు వైపు నడిపిస్తున్న అంకితభావం గల బృందం.",
+                loading: "సభ్యుల వివరాలు లోడ్ అవుతున్నాయి...",
+                roleTitle: "సంస్థాగత పాత్రలు",
+                thRole: "పాత్ర",
+                footer: "© 2026 సమత యూత్ పెద్దేవం. అభివృద్ధి చేసిన వారు: బట్టు హర్ష వర్ధన్"
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'te' : 'en';
+            const t = translations[currentLang];
+            
+            document.getElementById('siteLogo').innerText = t.logo;
+            document.getElementById('navDash').innerText = t.navDash;
+            document.getElementById('navAdmin').innerText = t.navAdmin;
+            document.getElementById('mainTitle').innerText = t.title;
+            document.getElementById('mainSubtitle').innerText = t.subtitle;
+            if(document.getElementById('loadingText')) document.getElementById('loadingText').innerText = t.loading;
+            document.getElementById('roleTitle').innerText = t.roleTitle;
+            document.getElementById('thRole').innerText = t.thRole;
+            document.getElementById('footerText').innerText = t.footer;
+        }
+    </script>
+
+</body>
+</html>

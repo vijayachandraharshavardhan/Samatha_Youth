@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Samatha Youth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --accent-color: #00f2fe;
+            --gradient-bg: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --danger-color: #ff4757;
+            --success-color: #2ed573;
+        }
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--gradient-bg);
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #loginSection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+        }
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #adminDashboard { display: none; width: 100%; flex-direction: column; align-items: center; padding-bottom: 80px; }
+        
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 95%;
+            max-width: 1100px;
+            margin-top: 20px;
+        }
+
+        .section-container {
+            width: 95%;
+            max-width: 1100px;
+            margin-top: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+        }
+
+        h1 { color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+        h2 { color: var(--accent-color); margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { padding: 15px; color: var(--accent-color); text-transform: uppercase; font-size: 0.8rem; text-align: left; }
+        td { padding: 15px; background: rgba(255, 255, 255, 0.05); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); }
+        td:first-child { border-radius: 15px 0 0 15px; border-left: 1px solid var(--glass-border); }
+        td:last-child { border-radius: 0 15px 15px 0; border-right: 1px solid var(--glass-border); text-align: right; }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        .btn-add { background: linear-gradient(45deg, #00f2fe, #4facfe); color: #000; }
+        .btn-delete { background: var(--danger-color); color: white; }
+        .btn-edit { background: #ffa502; color: white; }
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; border: 1px solid var(--glass-border); }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        .action-bar-bottom {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 40px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid var(--accent-color);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .social-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .social-input-group i { width: 30px; text-align: center; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="loginSection">
+        <div class="login-card">
+            <h2 style="color: var(--accent-color);">Admin Login</h2>
+            <p>Enter username to access dashboard</p>
+            <div class="form-group" style="margin-top: 20px;">
+                <input type="text" id="loginUser" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPass" placeholder="Password" required>
+            </div>
+            <button class="btn btn-add" style="width: 100%;" onclick="handleLogin()">Login</button>
+        </div>
+    </div>
+
+    <div id="adminDashboard">
+        <div class="header-area">
+            <h1>Admin Page</h1>
+            <button class="btn btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="section-container">
+            <h2>Board Members</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50">Select</th>
+                        <th>Photo</th>
+                        <th>Member Name</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="memberTableBody"></tbody>
+            </table>
+            <div class="action-bar-bottom">
+                <button class="btn btn-add" onclick="openMemberModal()">+ Add Member</button>
+                <button class="btn btn-delete" onclick="deleteSelectedMembers()">Delete Selected</button>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2>Amount Info</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50">Select</th>
+                        <th>Collector Name</th>
+                        <th>Date</th>
+                        <th>Collected</th>
+                        <th>Spent</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="action-bar-bottom">
+                <button class="btn btn-add" onclick="openDataModal()">+ Add New Record</button>
+                <button class="btn btn-delete" onclick="deleteSelectedData()">Delete Selected</button>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2>Helping Hands</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50">Select</th>
+                        <th>Name</th>
+                        <th>Date & Time</th>
+                        <th>Collected (₹)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="familyTableBody"></tbody>
+            </table>
+            <div class="action-bar-bottom">
+                <button class="btn btn-add" onclick="openFamilyModal()">+ Add Family</button>
+                <button class="btn btn-delete" onclick="deleteSelectedFamilies()">Delete Selected</button>
+                
+                <div class="filter-group">
+                    <label style="margin:0">Filter Month:</label>
+                    <select id="monthFilter" style="width: 150px; padding: 5px;" onchange="renderFamilyTable()">
+                        <option value="all">Show All</option>
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2>People Who Helped</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50">Select</th>
+                        <th>Helper Name</th>
+                        <th>Date</th>
+                        <th>Amount Spent (₹)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="donorsTableBody"></tbody>
+            </table>
+            <div class="action-bar-bottom">
+                <button class="btn btn-add" onclick="openDonorModal()">+ Add Helper</button>
+                <button class="btn btn-delete" onclick="deleteSelectedDonors()">Delete Selected</button>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2>Social Media Links</h2>
+            <form id="socialLinksForm">
+                <div class="social-input-group">
+                    <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                    <input type="url" id="linkYoutube" placeholder="YouTube Channel Link">
+                </div>
+                <div class="social-input-group">
+                    <i class="fab fa-instagram" style="color: #e4405f;"></i>
+                    <input type="url" id="linkInstagram" placeholder="Instagram Profile Link">
+                </div>
+                <div class="social-input-group">
+                    <i class="fab fa-facebook" style="color: #1877f2;"></i>
+                    <input type="url" id="linkFacebook" placeholder="Facebook Page Link">
+                </div>
+                <div class="social-input-group">
+                    <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                    <input type="url" id="linkWhatsapp" placeholder="WhatsApp Group/Contact Link">
+                </div>
+                <div class="action-bar-bottom">
+                    <button type="submit" class="btn btn-add">Update Links</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <h2 id="memberModalTitle">Add Board Member</h2>
+            <form id="memberForm">
+                <input type="hidden" id="memberEditId">
+                <input type="hidden" id="existingPhotoUrl">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="memName" required>
+                </div>
+                <div class="form-group">
+                    <label>Role / Designation</label>
+                    <input type="text" id="memRole" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="memPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Photo</label>
+                    <input type="file" id="memPhoto" accept="image/*">
+                    <small style="color:rgba(255,255,255,0.6)">Leave blank to keep existing photo when editing</small>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="submit" id="saveMemberBtn" class="btn btn-add" style="flex: 2;">Save Member</button>
+                    <button type="button" class="btn btn-delete" style="flex: 1;" onclick="closeMemberModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="familyModal" class="modal">
+        <div class="modal-content">
+            <h2 id="familyModalTitle">Add Beneficiary</h2>
+            <form id="familyForm">
+                <input type="hidden" id="familyEditId">
+                <div class="form-group">
+                    <label>Beneficiary Name</label>
+                    <input type="text" id="benName" required>
+                </div>
+                <div class="form-group">
+                    <label>Date & Time</label>
+                    <input type="datetime-local" id="benDateTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount Collected (₹)</label>
+                    <input type="number" id="benCollected" required>
+                </div>
+                <div class="form-group">
+                    <label>Village</label>
+                    <input type="text" id="benVillage" required>
+                </div>
+                <div class="form-group">
+                    <label>Purpose</label>
+                    <textarea id="benPurpose" rows="2" required></textarea>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-add" style="flex: 2;">Save Record</button>
+                    <button type="button" class="btn btn-delete" style="flex: 1;" onclick="closeFamilyModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dataModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dataModalTitle">Donation Record</h2>
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group"><label>Collector Name</label><input type="text" id="name" required></div>
+                <div class="form-group"><label>Date</label><input type="date" id="date" required></div>
+                <div class="form-group"><label>Amount Collected (₹)</label><input type="number" id="collected" required></div>
+                <div class="form-group"><label>Amount Spent (₹)</label><input type="number" id="donated" required></div>
+                <div class="form-group"><label>Purpose</label><input type="text" id="purpose" required></div>
+                <div style="display: flex; gap: 15px;"><button type="submit" class="btn btn-add">Save</button><button type="button" class="btn btn-delete" onclick="closeDataModal()">Cancel</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="donorModal" class="modal">
+        <div class="modal-content">
+            <h2 id="donorModalTitle">Add Helper</h2>
+            <form id="donorForm">
+                <input type="hidden" id="donorEditId">
+                <div class="form-group"><label>Helper Name</label><input type="text" id="donorName" required></div>
+                <div class="form-group"><label>Date</label><input type="date" id="donorDate" required></div>
+                <div class="form-group"><label>Amount Spent (₹)</label><input type="number" id="donorSpent" required></div>
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn btn-add" style="flex: 2;">Save Record</button>
+                    <button type="button" class="btn btn-delete" style="flex: 1;" onclick="closeDonorModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBc7aHZ99qXVanY_qWsskkGl6UwrGRs-sM",
+            authDomain: "samatha-youth.firebaseapp.com",
+            projectId: "samatha-youth",
+            storageBucket: "samatha-youth.firebasestorage.app",
+            messagingSenderId: "543294038206",
+            appId: "1:543294038206:web:baaab16553c53d2dadbeef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- CLOUDINARY CONFIG ---
+        const CLOUD_NAME = "dtndpjoca"; 
+        const UPLOAD_PRESET = "Samatha_youth";
+        const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+        
+        const colRef = collection(db, "samathaData");
+        const boardRef = collection(db, "boardMembers");
+        const familyRef = collection(db, "beneficiaryFamilies");
+        const donorsRef = collection(db, "donors");
+        const settingsRef = doc(db, "settings", "socialLinks");
+
+        let entries = [];
+        let members = [];
+        let families = [];
+        let donors = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'flex';
+                loadAllData();
+            } else {
+                document.getElementById('loginSection').style.display = 'flex';
+                document.getElementById('adminDashboard').style.display = 'none';
+            }
+        });
+
+        window.handleLogin = async () => {
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+            const email = user.includes('@') ? user : `vijayachandraharshavardhan@gmail.com`;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (err) { alert("Login Failed"); }
+        };
+
+        window.handleLogout = () => signOut(auth);
+
+        function loadAllData() {
+            onSnapshot(colRef, (s) => { entries = s.docs.map(d => ({id: d.id, ...d.data()})); renderDataTable(); });
+            onSnapshot(boardRef, (s) => { members = s.docs.map(d => ({id: d.id, ...d.data()})); renderBoardTable(); });
+            onSnapshot(familyRef, (s) => { families = s.docs.map(d => ({id: d.id, ...d.data()})); renderFamilyTable(); });
+            onSnapshot(donorsRef, (s) => { donors = s.docs.map(d => ({id: d.id, ...d.data()})); renderDonorsTable(); });
+            loadSocialLinks();
+        }
+
+        // --- BOARD MEMBER LOGIC ---
+        window.openMemberModal = () => {
+            document.getElementById('memberForm').reset();
+            document.getElementById('memberEditId').value = "";
+            document.getElementById('existingPhotoUrl').value = "";
+            document.getElementById('memberModalTitle').innerText = "Add Board Member";
+            document.getElementById('memberModal').style.display = 'flex';
+        };
+
+        window.closeMemberModal = () => document.getElementById('memberModal').style.display = 'none';
+
+        document.getElementById('memberForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveMemberBtn');
+            const id = document.getElementById('memberEditId').value;
+            const file = document.getElementById('memPhoto').files[0];
+            
+            saveBtn.innerText = "Saving Member...";
+            saveBtn.disabled = true;
+
+            let photoUrl = document.getElementById('existingPhotoUrl').value || "https://via.placeholder.com/150";
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
+                
+                try {
+                    const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                    const cloudData = await res.json();
+                    if(cloudData.secure_url) {
+                        photoUrl = cloudData.secure_url;
+                    }
+                } catch (err) {
+                    console.error("Cloudinary Error:", err);
+                    alert("Image upload failed. Data will be saved without updated photo.");
+                }
+            }
+
+            const data = {
+                name: document.getElementById('memName').value,
+                role: document.getElementById('memRole').value,
+                phone: document.getElementById('memPhone').value,
+                photoUrl: photoUrl
+            };
+
+            try {
+                if(!id) await addDoc(boardRef, data);
+                else await updateDoc(doc(db, "boardMembers", id), data);
+                closeMemberModal();
+                alert("Success!");
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                saveBtn.innerText = "Save Member";
+                saveBtn.disabled = false;
+            }
+        };
+
+        window.renderBoardTable = () => {
+            document.getElementById('memberTableBody').innerHTML = members.map(m => `
+                <tr>
+                    <td align="center"><input type="checkbox" class="mem-check" data-id="${m.id}" style="width:20px;height:20px"></td>
+                    <td><img src="${m.photoUrl || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
+                    <td>${m.name}</td>
+                    <td>${m.role || 'N/A'}</td>
+                    <td>${m.phone || 'N/A'}</td>
+                    <td><button class="btn btn-edit" onclick="editMember('${m.id}')">Edit</button></td>
+                </tr>
+            `).join('');
+        };
+
+        window.editMember = (id) => {
+            const m = members.find(item => item.id === id);
+            document.getElementById('memberEditId').value = id;
+            document.getElementById('memName').value = m.name;
+            document.getElementById('memRole').value = m.role || "";
+            document.getElementById('memPhone').value = m.phone || "";
+            document.getElementById('existingPhotoUrl').value = m.photoUrl || "";
+            document.getElementById('memberModalTitle').innerText = "Edit Board Member";
+            document.getElementById('memberModal').style.display = 'flex';
+        };
+
+        window.deleteSelectedMembers = async () => {
+            const checks = document.querySelectorAll('.mem-check:checked');
+            if(checks.length > 0 && confirm("Delete selected board members?")) {
+                for (let c of checks) await deleteDoc(doc(db, "boardMembers", c.dataset.id));
+            }
+        };
+
+        // --- OTHER SECTION LOGIC ---
+        window.openFamilyModal = () => {
+            document.getElementById('familyForm').reset();
+            document.getElementById('familyEditId').value = "";
+            document.getElementById('familyModalTitle').innerText = "Add Beneficiary Record";
+            document.getElementById('familyModal').style.display = 'flex';
+        };
+        window.closeFamilyModal = () => document.getElementById('familyModal').style.display = 'none';
+
+        document.getElementById('familyForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('familyEditId').value;
+            const data = {
+                name: document.getElementById('benName').value,
+                dateTime: document.getElementById('benDateTime').value,
+                collected: parseFloat(document.getElementById('benCollected').value),
+                spent: 0,
+                village: document.getElementById('benVillage').value,
+                purpose: document.getElementById('benPurpose').value
+            };
+            if(!id) await addDoc(familyRef, data);
+            else await updateDoc(doc(db, "beneficiaryFamilies", id), data);
+            closeFamilyModal();
+        };
+
+        window.renderFamilyTable = () => {
+            const filterMonth = document.getElementById('monthFilter').value;
+            const tbody = document.getElementById('familyTableBody');
+            let filtered = families;
+            if (filterMonth !== 'all') {
+                filtered = families.filter(f => new Date(f.dateTime).getMonth().toString() === filterMonth);
+            }
+            tbody.innerHTML = filtered.map(f => `
+                <tr>
+                    <td align="center"><input type="checkbox" class="fam-check" data-id="${f.id}" style="width:20px;height:20px"></td>
+                    <td>${f.name}</td>
+                    <td>${f.dateTime ? f.dateTime.replace('T', ' ') : 'N/A'}</td>
+                    <td>₹${f.collected || 0}</td>
+                    <td><button class="btn btn-edit" onclick="editFamily('${f.id}')">Edit</button></td>
+                </tr>
+            `).join('');
+        };
+
+        window.editFamily = (id) => {
+            const f = families.find(item => item.id === id);
+            document.getElementById('familyEditId').value = id;
+            document.getElementById('benName').value = f.name;
+            document.getElementById('benDateTime').value = f.dateTime || "";
+            document.getElementById('benCollected').value = f.collected || 0;
+            document.getElementById('benVillage').value = f.village;
+            document.getElementById('benPurpose').value = f.purpose;
+            document.getElementById('familyModal').style.display = 'flex';
+        };
+
+        window.deleteSelectedFamilies = async () => {
+            const checks = document.querySelectorAll('.fam-check:checked');
+            if(checks.length > 0 && confirm("Delete selected records?")) {
+                for (let c of checks) await deleteDoc(doc(db, "beneficiaryFamilies", c.dataset.id));
+            }
+        };
+
+        window.openDonorModal = () => {
+            document.getElementById('donorForm').reset();
+            document.getElementById('donorEditId').value = "";
+            document.getElementById('donorModalTitle').innerText = "Add Helper Record";
+            document.getElementById('donorModal').style.display = 'flex';
+        };
+        window.closeDonorModal = () => document.getElementById('donorModal').style.display = 'none';
+
+        document.getElementById('donorForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('donorEditId').value;
+            const data = {
+                name: document.getElementById('donorName').value,
+                date: document.getElementById('donorDate').value,
+                spent: parseFloat(document.getElementById('donorSpent').value)
+            };
+            if(!id) await addDoc(donorsRef, data);
+            else await updateDoc(doc(db, "donors", id), data);
+            closeDonorModal();
+        };
+
+        window.renderDonorsTable = () => {
+            document.getElementById('donorsTableBody').innerHTML = donors.map(d => `
+                <tr>
+                    <td align="center"><input type="checkbox" class="donor-check" data-id="${d.id}" style="width:20px;height:20px"></td>
+                    <td>${d.name}</td><td>${d.date}</td><td>₹${d.spent || 0}</td>
+                    <td><button class="btn btn-edit" onclick="editDonor('${d.id}')">Edit</button></td>
+                </tr>
+            `).join('');
+        };
+
+        window.editDonor = (id) => {
+            const d = donors.find(item => item.id === id);
+            document.getElementById('donorEditId').value = id;
+            document.getElementById('donorName').value = d.name;
+            document.getElementById('donorDate').value = d.date;
+            document.getElementById('donorSpent').value = d.spent || 0;
+            document.getElementById('donorModal').style.display = 'flex';
+        };
+
+        window.deleteSelectedDonors = async () => {
+            const checks = document.querySelectorAll('.donor-check:checked');
+            if(checks.length > 0 && confirm("Delete selected records?")) {
+                for (let c of checks) await deleteDoc(doc(db, "donors", c.dataset.id));
+            }
+        };
+
+        window.openDataModal = () => { 
+            document.getElementById('dataModal').style.display='flex'; 
+            document.getElementById('dataForm').reset(); 
+            document.getElementById('editId').value = "";
+        };
+        window.closeDataModal = () => document.getElementById('dataModal').style.display='none';
+
+        document.getElementById('dataForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const data = {
+                name: document.getElementById('name').value,
+                date: document.getElementById('date').value,
+                collected: parseFloat(document.getElementById('collected').value),
+                donated: parseFloat(document.getElementById('donated').value),
+                purpose: document.getElementById('purpose').value
+            };
+            if(!id) await addDoc(colRef, data);
+            else await updateDoc(doc(db, "samathaData", id), data);
+            closeDataModal();
+        };
+
+        function renderDataTable() {
+            document.getElementById('tableBody').innerHTML = entries.map(item => `
+                <tr>
+                    <td align="center"><input type="checkbox" class="row-check" data-id="${item.id}" style="width:20px;height:20px"></td>
+                    <td>${item.name}</td><td>${item.date}</td><td>₹${item.collected}</td><td>₹${item.donated}</td>
+                    <td><button class="btn btn-edit" onclick="editEntry('${item.id}')">Edit</button></td>
+                </tr>
+            `).join('');
+        }
+
+        window.editEntry = (id) => {
+            const item = entries.find(e => e.id === id);
+            document.getElementById('editId').value = id;
+            document.getElementById('name').value = item.name;
+            document.getElementById('date').value = item.date;
+            document.getElementById('collected').value = item.collected;
+            document.getElementById('donated').value = item.donated;
+            document.getElementById('purpose').value = item.purpose || "";
+            document.getElementById('dataModal').style.display = 'flex';
+        };
+
+        window.deleteSelectedData = async () => {
+            const checks = document.querySelectorAll('.row-check:checked');
+            if(checks.length > 0 && confirm("Delete selected records?")) {
+                for (let c of checks) await deleteDoc(doc(db, "samathaData", c.dataset.id));
+            }
+        };
+
+        async function loadSocialLinks() {
+            const snap = await getDoc(settingsRef);
+            if(snap.exists()){
+                const d = snap.data();
+                document.getElementById('linkYoutube').value = d.youtube || "";
+                document.getElementById('linkInstagram').value = d.instagram || "";
+                document.getElementById('linkFacebook').value = d.facebook || "";
+                document.getElementById('linkWhatsapp').value = d.whatsapp || "";
+            }
+        }
+
+        document.getElementById('socialLinksForm').onsubmit = async (e) => {
+            e.preventDefault();
+            await setDoc(settingsRef, {
+                youtube: document.getElementById('linkYoutube').value,
+                instagram: document.getElementById('linkInstagram').value,
+                facebook: document.getElementById('linkFacebook').value,
+                whatsapp: document.getElementById('linkWhatsapp').value
+            });
+            alert("Links Updated!");
+        };
+    </script>
+</body>
+</html>
