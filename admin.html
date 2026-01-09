@@ -188,6 +188,7 @@
                 <thead>
                     <tr>
                         <th width="50">Select</th>
+                        <th>Pos</th>
                         <th>Photo</th>
                         <th>Member Name</th>
                         <th>Role</th>
@@ -315,6 +316,10 @@
             <form id="memberForm">
                 <input type="hidden" id="memberEditId">
                 <div class="form-group">
+                    <label>Position (Ordering)</label>
+                    <input type="number" id="memPos" placeholder="e.g., 1 for President" required>
+                </div>
+                <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="memName" required>
                 </div>
@@ -327,8 +332,8 @@
                     <input type="tel" id="memPhone" required>
                 </div>
                 <div class="form-group">
-                    <label>Photo (Optional)</label>
-                    <input type="file" id="memPhoto" accept="image/*">
+                    <label>Photo URL (Optional)</label>
+                    <input type="text" id="memPhotoUrl" placeholder="Image link">
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
                     <button type="submit" class="btn btn-add" style="flex: 2;">Save Member</button>
@@ -446,7 +451,6 @@
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
             
-            // MAP USERNAME TO EMAIL
             let email;
             if (user === "harsha") {
                 email = "vijayachandraharshavardhan@gmail.com";
@@ -485,10 +489,11 @@
             e.preventDefault();
             const id = document.getElementById('memberEditId').value;
             const data = {
+                pos: parseInt(document.getElementById('memPos').value),
                 name: document.getElementById('memName').value,
                 role: document.getElementById('memRole').value,
                 phone: document.getElementById('memPhone').value,
-                photoUrl: "" // This is where the uploaded photo URL would go
+                photoUrl: document.getElementById('memPhotoUrl').value
             };
 
             try {
@@ -502,9 +507,12 @@
         };
 
         window.renderBoardTable = () => {
-            document.getElementById('memberTableBody').innerHTML = members.map(m => `
+            // Sort local members by position for the admin view as well
+            const sortedMembers = [...members].sort((a, b) => (a.pos || 0) - (b.pos || 0));
+            document.getElementById('memberTableBody').innerHTML = sortedMembers.map(m => `
                 <tr>
                     <td align="center"><input type="checkbox" class="mem-check" data-id="${m.id}" style="width:20px;height:20px"></td>
+                    <td>${m.pos || 0}</td>
                     <td><img src="${m.photoUrl || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
                     <td>${m.name}</td>
                     <td>${m.role || 'N/A'}</td>
@@ -517,9 +525,11 @@
         window.editMember = (id) => {
             const m = members.find(item => item.id === id);
             document.getElementById('memberEditId').value = id;
+            document.getElementById('memPos').value = m.pos || 0;
             document.getElementById('memName').value = m.name;
             document.getElementById('memRole').value = m.role || "";
             document.getElementById('memPhone').value = m.phone || "";
+            document.getElementById('memPhotoUrl').value = m.photoUrl || "";
             document.getElementById('memberModalTitle').innerText = "Edit Board Member";
             document.getElementById('memberModal').style.display = 'flex';
         };
