@@ -332,8 +332,8 @@
                     <input type="tel" id="memPhone" required>
                 </div>
                 <div class="form-group">
-                    <label>Photo URL (Optional)</label>
-                    <input type="text" id="memPhotoUrl" placeholder="Image link">
+                    <label>Photo (Optional)</label>
+                    <input type="file" id="memPhoto" accept="image/*">
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
                     <button type="submit" class="btn btn-add" style="flex: 2;">Save Member</button>
@@ -450,19 +450,8 @@
         window.handleLogin = async () => {
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
-            
-            let email;
-            if (user === "harsha") {
-                email = "vijayachandraharshavardhan@gmail.com";
-            } else {
-                email = user.includes('@') ? user : user + "@gmail.com";
-            }
-
-            try { 
-                await signInWithEmailAndPassword(auth, email, pass); 
-            } catch (err) { 
-                alert("Login Failed: " + err.message); 
-            }
+            const email = user.includes('@') ? user : `vijayachandraharshavardhan@gmail.com`;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (err) { alert("Login Failed"); }
         };
 
         window.handleLogout = () => signOut(auth);
@@ -489,11 +478,11 @@
             e.preventDefault();
             const id = document.getElementById('memberEditId').value;
             const data = {
-                pos: parseInt(document.getElementById('memPos').value),
                 name: document.getElementById('memName').value,
                 role: document.getElementById('memRole').value,
                 phone: document.getElementById('memPhone').value,
-                photoUrl: document.getElementById('memPhotoUrl').value
+                pos: parseInt(document.getElementById('memPos').value) || 0,
+                photoUrl: "" // This is where the uploaded photo URL would go
             };
 
             try {
@@ -507,8 +496,9 @@
         };
 
         window.renderBoardTable = () => {
-            // Sort local members by position for the admin view as well
+            // Sort local members list based on 'pos' field before rendering
             const sortedMembers = [...members].sort((a, b) => (a.pos || 0) - (b.pos || 0));
+            
             document.getElementById('memberTableBody').innerHTML = sortedMembers.map(m => `
                 <tr>
                     <td align="center"><input type="checkbox" class="mem-check" data-id="${m.id}" style="width:20px;height:20px"></td>
@@ -525,11 +515,10 @@
         window.editMember = (id) => {
             const m = members.find(item => item.id === id);
             document.getElementById('memberEditId').value = id;
-            document.getElementById('memPos').value = m.pos || 0;
             document.getElementById('memName').value = m.name;
             document.getElementById('memRole').value = m.role || "";
             document.getElementById('memPhone').value = m.phone || "";
-            document.getElementById('memPhotoUrl').value = m.photoUrl || "";
+            document.getElementById('memPos').value = m.pos || 0;
             document.getElementById('memberModalTitle').innerText = "Edit Board Member";
             document.getElementById('memberModal').style.display = 'flex';
         };
