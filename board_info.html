@@ -274,6 +274,9 @@
 
             const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+            // SORT MEMBERS BY POSITION (pos field)
+            members.sort((a, b) => (a.pos || 0) - (b.pos || 0));
+
             // Set to keep track of unique roles
             const uniqueRoles = new Set();
 
@@ -282,7 +285,7 @@
                 rolesTable.innerHTML = '<tr><td>No roles available.</td></tr>';
             } else {
                 members.forEach(m => {
-                    // Populate Grid - note we use m.photoUrl to match Admin Page field
+                    // Populate Grid using m.photoUrl to match Admin Page field
                     memberGrid.innerHTML += `
                         <div class="member-card">
                             <img src="${m.photoUrl || 'https://via.placeholder.com/140'}" alt="${m.name}" class="member-img">
@@ -293,11 +296,11 @@
                             </a>
                         </div>
                     `;
-                    // Track Roles
+                    // Track Roles for the structure table
                     if(m.role) uniqueRoles.add(m.role);
                 });
 
-                // Populate Roles Table based on added members
+                // Populate Roles Table based on unique roles found
                 uniqueRoles.forEach(role => {
                     rolesTable.innerHTML += `<tr><td>${role}</td></tr>`;
                 });
