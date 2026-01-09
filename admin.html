@@ -328,7 +328,7 @@
                     <input type="tel" id="memPhone" required>
                 </div>
                 <div class="form-group">
-                    <label>Photo (Optional)</label>
+                    <label>Photo (Select from Gallery)</label>
                     <input type="file" id="memPhoto" accept="image/*">
                 </div>
                 <div class="form-group">
@@ -336,7 +336,7 @@
                     <input type="number" id="memPos" placeholder="e.g., 1 for President" required>
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-add" style="flex: 2;">Save Member</button>
+                    <button type="submit" id="saveMemberBtn" class="btn btn-add" style="flex: 2;">Save Member</button>
                     <button type="button" class="btn btn-delete" style="flex: 1;" onclick="closeMemberModal()">Cancel</button>
                 </div>
             </form>
@@ -431,6 +431,10 @@
         const donorsRef = collection(db, "donors");
         const settingsRef = doc(db, "settings", "socialLinks");
 
+        // Cloudinary Config
+        const CLOUDINARY_CLOUD_NAME = "dtndpjoca";
+        const CLOUDINARY_UPLOAD_PRESET = "Samatha_youth";
+
         let entries = [];
         let members = [];
         let families = [];
@@ -477,24 +481,57 @@
 
         window.closeMemberModal = () => document.getElementById('memberModal').style.display = 'none';
 
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) throw new Error("Cloudinary Upload Failed");
+            const data = await res.json();
+            return data.secure_url;
+        }
+
         document.getElementById('memberForm').onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('memberEditId').value;
-            const data = {
-                name: document.getElementById('memName').value,
-                role: document.getElementById('memRole').value,
-                phone: document.getElementById('memPhone').value,
-                pos: parseInt(document.getElementById('memPos').value) || 0,
-                photoUrl: "" 
-            };
+            const saveBtn = document.getElementById('saveMemberBtn');
+            const fileInput = document.getElementById('memPhoto');
+            
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Uploading...";
 
             try {
+                let photoUrl = "";
+                // If editing, keep old photo unless new one is picked
+                if(id) photoUrl = members.find(m => m.id === id).photoUrl || "";
+
+                if (fileInput.files.length > 0) {
+                    photoUrl = await uploadToCloudinary(fileInput.files[0]);
+                }
+
+                const data = {
+                    name: document.getElementById('memName').value,
+                    role: document.getElementById('memRole').value,
+                    phone: document.getElementById('memPhone').value,
+                    pos: parseInt(document.getElementById('memPos').value) || 0,
+                    photoUrl: photoUrl
+                };
+
                 if(!id) await addDoc(boardRef, data);
                 else await updateDoc(doc(db, "boardMembers", id), data);
+                
                 closeMemberModal();
                 alert("Member Saved successfully!");
             } catch (err) {
-                alert("Error saving member: " + err.message);
+                alert("Error: " + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "Save Member";
             }
         };
 
