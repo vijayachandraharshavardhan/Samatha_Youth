@@ -165,9 +165,9 @@
     <div id="loginSection">
         <div class="login-card">
             <h2 style="color: var(--accent-color);">Admin Login</h2>
-            <p>Enter username to access dashboard</p>
+            <p>Enter email and password to access dashboard</p>
             <div class="form-group" style="margin-top: 20px;">
-                <input type="text" id="loginUser" placeholder="Username" required>
+                <input type="email" id="loginEmail" placeholder="Email Address" required>
             </div>
             <div class="form-group">
                 <input type="password" id="loginPass" placeholder="Password" required>
@@ -188,11 +188,11 @@
                 <thead>
                     <tr>
                         <th width="50">Select</th>
-                        <th>Pos</th>
                         <th>Photo</th>
                         <th>Member Name</th>
                         <th>Role</th>
                         <th>Phone</th>
+                        <th>Pos</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -316,10 +316,6 @@
             <form id="memberForm">
                 <input type="hidden" id="memberEditId">
                 <div class="form-group">
-                    <label>Position (Ordering)</label>
-                    <input type="number" id="memPos" placeholder="e.g., 1 for President" required>
-                </div>
-                <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="memName" required>
                 </div>
@@ -334,6 +330,10 @@
                 <div class="form-group">
                     <label>Photo (Optional)</label>
                     <input type="file" id="memPhoto" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Position (Ordering)</label>
+                    <input type="number" id="memPos" placeholder="e.g., 1 for President" required>
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
                     <button type="submit" class="btn btn-add" style="flex: 2;">Save Member</button>
@@ -448,10 +448,13 @@
         });
 
         window.handleLogin = async () => {
-            const user = document.getElementById('loginUser').value;
+            const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
-            const email = user.includes('@') ? user : `vijayachandraharshavardhan@gmail.com`;
-            try { await signInWithEmailAndPassword(auth, email, pass); } catch (err) { alert("Login Failed"); }
+            try { 
+                await signInWithEmailAndPassword(auth, email, pass); 
+            } catch (err) { 
+                alert("Login Failed: " + err.message); 
+            }
         };
 
         window.handleLogout = () => signOut(auth);
@@ -482,7 +485,7 @@
                 role: document.getElementById('memRole').value,
                 phone: document.getElementById('memPhone').value,
                 pos: parseInt(document.getElementById('memPos').value) || 0,
-                photoUrl: "" // This is where the uploaded photo URL would go
+                photoUrl: "" 
             };
 
             try {
@@ -496,17 +499,15 @@
         };
 
         window.renderBoardTable = () => {
-            // Sort local members list based on 'pos' field before rendering
             const sortedMembers = [...members].sort((a, b) => (a.pos || 0) - (b.pos || 0));
-            
             document.getElementById('memberTableBody').innerHTML = sortedMembers.map(m => `
                 <tr>
                     <td align="center"><input type="checkbox" class="mem-check" data-id="${m.id}" style="width:20px;height:20px"></td>
-                    <td>${m.pos || 0}</td>
                     <td><img src="${m.photoUrl || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
                     <td>${m.name}</td>
                     <td>${m.role || 'N/A'}</td>
                     <td>${m.phone || 'N/A'}</td>
+                    <td>${m.pos || 0}</td>
                     <td><button class="btn btn-edit" onclick="editMember('${m.id}')">Edit</button></td>
                 </tr>
             `).join('');
