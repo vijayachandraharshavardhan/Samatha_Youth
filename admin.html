@@ -314,7 +314,6 @@
             <h2 id="memberModalTitle">Add Board Member</h2>
             <form id="memberForm">
                 <input type="hidden" id="memberEditId">
-                <input type="hidden" id="existingPhotoUrl">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="memName" required>
@@ -328,12 +327,11 @@
                     <input type="tel" id="memPhone" required>
                 </div>
                 <div class="form-group">
-                    <label>Photo</label>
+                    <label>Photo (Optional)</label>
                     <input type="file" id="memPhoto" accept="image/*">
-                    <small style="color:rgba(255,255,255,0.6)">Leave blank to keep existing photo when editing</small>
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
-                    <button type="submit" id="saveMemberBtn" class="btn btn-add" style="flex: 2;">Save Member</button>
+                    <button type="submit" class="btn btn-add" style="flex: 2;">Save Member</button>
                     <button type="button" class="btn btn-delete" style="flex: 1;" onclick="closeMemberModal()">Cancel</button>
                 </div>
             </form>
@@ -421,11 +419,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
-        // --- CLOUDINARY CONFIG ---
-        const CLOUD_NAME = "dtndpjoca"; 
-        const UPLOAD_PRESET = "Samatha_youth";
-        const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
         
         const colRef = collection(db, "samathaData");
         const boardRef = collection(db, "boardMembers");
@@ -452,8 +445,20 @@
         window.handleLogin = async () => {
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
-            const email = user.includes('@') ? user : `vijayachandraharshavardhan@gmail.com`;
-            try { await signInWithEmailAndPassword(auth, email, pass); } catch (err) { alert("Login Failed"); }
+            
+            // MAP USERNAME TO EMAIL
+            let email;
+            if (user === "harsha") {
+                email = "vijayachandraharshavardhan@gmail.com";
+            } else {
+                email = user.includes('@') ? user : user + "@gmail.com";
+            }
+
+            try { 
+                await signInWithEmailAndPassword(auth, email, pass); 
+            } catch (err) { 
+                alert("Login Failed: " + err.message); 
+            }
         };
 
         window.handleLogout = () => signOut(auth);
@@ -470,7 +475,6 @@
         window.openMemberModal = () => {
             document.getElementById('memberForm').reset();
             document.getElementById('memberEditId').value = "";
-            document.getElementById('existingPhotoUrl').value = "";
             document.getElementById('memberModalTitle').innerText = "Add Board Member";
             document.getElementById('memberModal').style.display = 'flex';
         };
@@ -479,49 +483,21 @@
 
         document.getElementById('memberForm').onsubmit = async (e) => {
             e.preventDefault();
-            const saveBtn = document.getElementById('saveMemberBtn');
             const id = document.getElementById('memberEditId').value;
-            const file = document.getElementById('memPhoto').files[0];
-            
-            saveBtn.innerText = "Saving Member...";
-            saveBtn.disabled = true;
-
-            let photoUrl = document.getElementById('existingPhotoUrl').value || "https://via.placeholder.com/150";
-
-            if (file) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', UPLOAD_PRESET);
-                
-                try {
-                    const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-                    const cloudData = await res.json();
-                    if(cloudData.secure_url) {
-                        photoUrl = cloudData.secure_url;
-                    }
-                } catch (err) {
-                    console.error("Cloudinary Error:", err);
-                    alert("Image upload failed. Data will be saved without updated photo.");
-                }
-            }
-
             const data = {
                 name: document.getElementById('memName').value,
                 role: document.getElementById('memRole').value,
                 phone: document.getElementById('memPhone').value,
-                photoUrl: photoUrl
+                photoUrl: "" // This is where the uploaded photo URL would go
             };
 
             try {
                 if(!id) await addDoc(boardRef, data);
                 else await updateDoc(doc(db, "boardMembers", id), data);
                 closeMemberModal();
-                alert("Success!");
+                alert("Member Saved successfully!");
             } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                saveBtn.innerText = "Save Member";
-                saveBtn.disabled = false;
+                alert("Error saving member: " + err.message);
             }
         };
 
@@ -544,7 +520,6 @@
             document.getElementById('memName').value = m.name;
             document.getElementById('memRole').value = m.role || "";
             document.getElementById('memPhone').value = m.phone || "";
-            document.getElementById('existingPhotoUrl').value = m.photoUrl || "";
             document.getElementById('memberModalTitle').innerText = "Edit Board Member";
             document.getElementById('memberModal').style.display = 'flex';
         };
@@ -556,7 +531,7 @@
             }
         };
 
-        // --- OTHER SECTION LOGIC ---
+        // --- FAMILY LOGIC (Helping Hands Section) ---
         window.openFamilyModal = () => {
             document.getElementById('familyForm').reset();
             document.getElementById('familyEditId').value = "";
@@ -584,10 +559,15 @@
         window.renderFamilyTable = () => {
             const filterMonth = document.getElementById('monthFilter').value;
             const tbody = document.getElementById('familyTableBody');
+            
             let filtered = families;
             if (filterMonth !== 'all') {
-                filtered = families.filter(f => new Date(f.dateTime).getMonth().toString() === filterMonth);
+                filtered = families.filter(f => {
+                    const date = new Date(f.dateTime);
+                    return date.getMonth().toString() === filterMonth;
+                });
             }
+
             tbody.innerHTML = filtered.map(f => `
                 <tr>
                     <td align="center"><input type="checkbox" class="fam-check" data-id="${f.id}" style="width:20px;height:20px"></td>
@@ -607,6 +587,7 @@
             document.getElementById('benCollected').value = f.collected || 0;
             document.getElementById('benVillage').value = f.village;
             document.getElementById('benPurpose').value = f.purpose;
+            document.getElementById('familyModalTitle').innerText = "Edit Beneficiary Record";
             document.getElementById('familyModal').style.display = 'flex';
         };
 
@@ -617,6 +598,7 @@
             }
         };
 
+        // --- DONORS LOGIC (People Who Helped Section) ---
         window.openDonorModal = () => {
             document.getElementById('donorForm').reset();
             document.getElementById('donorEditId').value = "";
@@ -642,7 +624,9 @@
             document.getElementById('donorsTableBody').innerHTML = donors.map(d => `
                 <tr>
                     <td align="center"><input type="checkbox" class="donor-check" data-id="${d.id}" style="width:20px;height:20px"></td>
-                    <td>${d.name}</td><td>${d.date}</td><td>₹${d.spent || 0}</td>
+                    <td>${d.name}</td>
+                    <td>${d.date}</td>
+                    <td>₹${d.spent || 0}</td>
                     <td><button class="btn btn-edit" onclick="editDonor('${d.id}')">Edit</button></td>
                 </tr>
             `).join('');
@@ -654,6 +638,7 @@
             document.getElementById('donorName').value = d.name;
             document.getElementById('donorDate').value = d.date;
             document.getElementById('donorSpent').value = d.spent || 0;
+            document.getElementById('donorModalTitle').innerText = "Edit Helper Record";
             document.getElementById('donorModal').style.display = 'flex';
         };
 
@@ -664,10 +649,12 @@
             }
         };
 
+        // --- DONATION DATA LOGIC (Amount Info Section) ---
         window.openDataModal = () => { 
             document.getElementById('dataModal').style.display='flex'; 
             document.getElementById('dataForm').reset(); 
             document.getElementById('editId').value = "";
+            document.getElementById('dataModalTitle').innerText = "Add Donation Record";
         };
         window.closeDataModal = () => document.getElementById('dataModal').style.display='none';
 
@@ -704,6 +691,7 @@
             document.getElementById('collected').value = item.collected;
             document.getElementById('donated').value = item.donated;
             document.getElementById('purpose').value = item.purpose || "";
+            document.getElementById('dataModalTitle').innerText = "Edit Donation Record";
             document.getElementById('dataModal').style.display = 'flex';
         };
 
@@ -714,6 +702,7 @@
             }
         };
 
+        // --- SOCIAL MEDIA LOGIC ---
         async function loadSocialLinks() {
             const snap = await getDoc(settingsRef);
             if(snap.exists()){
